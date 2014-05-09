@@ -7,9 +7,9 @@
         <option name="externalProjectPath" value="$PROJECT_DIR$" />
         <option name="modules">
           <set>
-            <option value="C:\Users\Tim\AndroidStudioProjects\AndroidPipelinedFileCovertChannel\FileCovertChannelLib\lib" />
-            <option value="C:\Users\Tim\AndroidStudioProjects\AndroidPipelinedFileCovertChannel\FilePipelineCovertChannel" />
-            <option value="C:\Users\Tim\AndroidStudioProjects\AndroidPipelinedFileCovertChannel\FilePipelineCovertChannel\app" />
+            <option value="$PROJECT_DIR$/../FileCovertChannelLib/lib" />
+            <option value="$PROJECT_DIR$" />
+            <option value="$PROJECT_DIR$/app" />
           </set>
         </option>
       </GradleProjectSettings>

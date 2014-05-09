@@ -1,7 +1,5 @@
 package com.example.filecovertchannellib.lib;
 
-import android.support.v4.util.TimeUtils;
-
 import java.io.File;
 import java.io.IOException;
 

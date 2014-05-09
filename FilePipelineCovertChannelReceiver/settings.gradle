@@ -1,1 +1,3 @@
 include ':app'
+include ':FileCovertChannelLib'
+project(':FileCovertChannelLib').projectDir = new File('../FileCovertChannelLib/lib')

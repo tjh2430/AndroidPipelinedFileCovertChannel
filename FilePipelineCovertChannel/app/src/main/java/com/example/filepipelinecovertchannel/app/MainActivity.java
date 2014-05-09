@@ -2,10 +2,11 @@ package com.example.filepipelinecovertchannel.app;
 
 import android.app.Activity;
 import android.os.Bundle;
-import android.view.Menu;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.TextView;
+
+import com.example.filecovertchannellib.lib.FileUtils;
 
 public class MainActivity extends Activity
 {

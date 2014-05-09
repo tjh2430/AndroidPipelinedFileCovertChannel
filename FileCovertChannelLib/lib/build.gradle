@@ -1,8 +1,8 @@
-apply plugin: 'android'
+apply plugin: 'android-library'
 
 android {
     compileSdkVersion 19
-    buildToolsVersion '19.0.3'
+    buildToolsVersion "19.0.3"
 
     defaultConfig {
         minSdkVersion 8
@@ -19,7 +19,6 @@ android {
 }
 
 dependencies {
-    //compile 'com.android.support:appcompat-v7:+'
-    compile fileTree(include: ['*.jar'], dir: 'libs')
-    compile project(':FileCovertChannelLib')
+    compile 'com.android.support:appcompat-v7:+'
+    compile fileTree(dir: 'libs', include: ['*.jar'])
 }

@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!--<menu xmlns:android="http://schemas.android.com/apk/res/android"
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
 xmlns:app="http://schemas.android.com/apk/res-auto"
 xmlns:tools="http://schemas.android.com/tools"
 tools:context="com.example.filepipelinecovertchannelreceiver.app.MainActivity" >
@@ -8,29 +8,3 @@ tools:context="com.example.filepipelinecovertchannelreceiver.app.MainActivity" >
     android:title="@string/action_settings"
     android:orderInCategory="100" />
 </menu>
--->
-
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-android:layout_width="fill_parent"
-android:layout_height="fill_parent"
-android:orientation="vertical"
-xmlns:tools="http://schemas.android.com/tools"
-tools:context="com.example.filepipelinecovertchannelreceiver.app.MainActivity" >
-
-<TextView
-    android:id="@+id/received_message_label"
-    android:layout_width="fill_parent"
-    android:layout_height="wrap_content"
-    android:text="" />
-
-<ScrollView
-    android:layout_width="fill_parent"
-    android:layout_height="wrap_content" >
-
-    <TextView
-        android:id="@+id/received_message"
-        android:layout_width="fill_parent"
-        android:layout_height="wrap_content" />
-</ScrollView>
-
-</LinearLayout>

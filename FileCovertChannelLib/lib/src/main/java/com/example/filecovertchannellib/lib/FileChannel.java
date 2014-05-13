@@ -215,7 +215,6 @@ public class FileChannel
         throws IOException
     {
         throwIfNotSender();
-        throwIfNotOpen();
 
         // Note that the order of creation for these files is potentially significant since
         // any receiver process which is observing this channel will start attempting to

@@ -11,6 +11,12 @@ import java.io.IOException;
  */
 public class FileUtils
 {
+    public static final String PATH_ROOT = "/data/data/com.example.filepipelinecovertchannel.app/files/";
+    public static final String PRIMARY_DATA_FILE = "control_d.txt";
+    public static final String PRIMARY_READ_READY_FILE = "control_rr.txt";
+    public static final String PRIMARY_WRITE_READY_FILE = "control_wr.txt";
+    public static final int DEFAULT_SLEEP_INTERVAL = 5;
+
     /**
      * Updates the timestamp of the given file to the current time.
      * Taken from http://www.intransitione.com/blog/touch-a-file-on-android/
@@ -25,7 +31,7 @@ public class FileUtils
                         throw new IOException("Cannot create parent directories for file: " + file);
 
             file.createNewFile();
-            FileOutputStream out = cxt.openFileOutput(file.getAbsolutePath(), Context.MODE_WORLD_READABLE);
+            FileOutputStream out = cxt.openFileOutput(file.getName(), Context.MODE_WORLD_READABLE);
             out.close();
         }
 
@@ -62,5 +68,20 @@ public class FileUtils
         }
 
         return updatedTime;
+    }
+
+    public static File getPrimaryDataFile()
+    {
+        return new File(PATH_ROOT, PRIMARY_DATA_FILE);
+    }
+
+    public static File getPrimaryReadReadyFile()
+    {
+        return new File(PATH_ROOT, PRIMARY_READ_READY_FILE);
+    }
+
+    public static File getPrimaryWriteReadyFile()
+    {
+        return new File(PATH_ROOT, PRIMARY_WRITE_READY_FILE);
     }
 }

@@ -22,7 +22,9 @@
         android:lines="15"
         android:editable="true"
         android:hint="Enter Message"
-        android:gravity="top" />
+        android:gravity="top"
+        android:background="#ffffffff"
+        android:textColor="#ff000000" />
 
     <TextView
         android:layout_width="wrap_content"

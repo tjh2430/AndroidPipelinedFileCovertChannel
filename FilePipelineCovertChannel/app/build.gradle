@@ -19,7 +19,23 @@ android {
 }
 
 dependencies {
-    //compile 'com.android.support:appcompat-v7:+'
+    compile 'com.android.support:appcompat-v7:+'
     compile fileTree(include: ['*.jar'], dir: 'libs')
     compile project(':FileCovertChannelLib')
+}
+
+
+buildscript {
+    repositories {
+        mavenCentral()
+    }
+    dependencies {
+        classpath 'com.android.tools.build:gradle:0.9.+'
+    }
+}
+
+allprojects {
+    repositories {
+        mavenCentral()
+    }
 }

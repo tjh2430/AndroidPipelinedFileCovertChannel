@@ -1,6 +1,9 @@
 package com.example.filecovertchannellib.lib;
 
+import android.content.Context;
+
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 
 /**
@@ -12,7 +15,7 @@ public class FileUtils
      * Updates the timestamp of the given file to the current time.
      * Taken from http://www.intransitione.com/blog/touch-a-file-on-android/
      */
-    public static void touch(File file) throws IOException {
+    public static void touch(File file, Context cxt) throws IOException {
         if(!file.exists())
         {
             File parent = file.getParentFile();
@@ -22,6 +25,8 @@ public class FileUtils
                         throw new IOException("Cannot create parent directories for file: " + file);
 
             file.createNewFile();
+            FileOutputStream out = cxt.openFileOutput(file.getAbsolutePath(), Context.MODE_WORLD_READABLE);
+            out.close();
         }
 
         boolean success = file.setLastModified(System.currentTimeMillis());

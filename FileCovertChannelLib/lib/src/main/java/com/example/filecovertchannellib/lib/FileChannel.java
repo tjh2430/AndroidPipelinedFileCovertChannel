@@ -1,5 +1,6 @@
 package com.example.filecovertchannellib.lib;
 
+import android.content.Context;
 import android.util.Log;
 import java.io.File;
 import java.io.IOException;
@@ -22,6 +23,7 @@ public class FileChannel
     private static final byte ONE_BYTE = (byte) 1;
 
     private File readReady, writeReady, dataFile;
+    private Context cxt;
     private CHANNEL_MODE mode;
     private long sleepInterval;
     private long readReadyLastUpdate, writeReadyLastUpdate, dataFileLastUpdateTime;
@@ -31,7 +33,7 @@ public class FileChannel
     // the receivers simply observe the files involved in the channel.
     private boolean channelOpen;
 
-    public FileChannel(File readReady, File writeReady, File dataFile, long sleepInterval, CHANNEL_MODE mode)
+    public FileChannel(File readReady, File writeReady, File dataFile, Context cxt, long sleepInterval, CHANNEL_MODE mode)
         throws IOException
     {
         this.readReady = readReady;
@@ -39,6 +41,7 @@ public class FileChannel
         this.dataFile = dataFile;
         this.sleepInterval = sleepInterval;
         this.mode = mode;
+        this.cxt = cxt;
 
         channelOpen = false;
 
@@ -109,10 +112,10 @@ public class FileChannel
         writeReadyLastUpdate = FileUtils.waitOn(writeReady, writeReadyLastUpdate, sleepInterval);
         if(bit)
         {
-            FileUtils.touch(dataFile);
+            FileUtils.touch(dataFile, cxt);
         }
 
-        FileUtils.touch(readReady);
+        FileUtils.touch(readReady, cxt);
     }
 
     public String receiveMessage()
@@ -218,9 +221,9 @@ public class FileChannel
         // any receiver process which is observing this channel will start attempting to
         // read data when it observes the presence of the readReady file, so this file should
         // be created last.
-        FileUtils.touch(writeReady);
-        FileUtils.touch(dataFile);
-        FileUtils.touch(readReady);
+        FileUtils.touch(writeReady, cxt);
+        FileUtils.touch(dataFile, cxt);
+        FileUtils.touch(readReady, cxt);
 
         channelOpen = true;
     }

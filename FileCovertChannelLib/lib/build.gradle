@@ -4,6 +4,13 @@ android {
     compileSdkVersion 19
     buildToolsVersion "19.0.3"
 
+    repositories {
+        mavenCentral()
+    }
+    dependencies {
+        //classpath 'com.android.tools.build:gradle:0.9.5.+'
+    }
+
     defaultConfig {
         minSdkVersion 8
         targetSdkVersion 19
@@ -19,6 +26,21 @@ android {
 }
 
 dependencies {
-    //compile 'com.android.support:appcompat-v7:+'
+    compile 'com.android.support:appcompat-v7:+'
     compile fileTree(dir: 'libs', include: ['*.jar'])
+}
+
+buildscript {
+    repositories {
+        mavenCentral()
+    }
+    dependencies {
+        classpath 'com.android.tools.build:gradle:0.9.+'
+    }
+}
+
+allprojects {
+    repositories {
+        mavenCentral()
+    }
 }

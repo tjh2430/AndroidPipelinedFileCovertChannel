@@ -238,6 +238,10 @@ public class FileChannel
         writeReady.delete();
         readReady.delete();
 
+        dataFile = null;
+        writeReady = null;
+        readReady = null;
+
         channelOpen = false;
     }
 
@@ -287,6 +291,13 @@ public class FileChannel
 
     private boolean channelIsOpen()
     {
-
+        if(channelOpen)
+        {
+            return true;
+        }
+        else
+        {
+            return (dataFile != null && dataFile.exists());
+        }
     }
 }

@@ -15,7 +15,8 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <service android:name="channel.reader" >
+
+        <service android:name="com.example.filepipelinecovertchannelreceiver.app.MessageReceiver" >
             <intent-filter>
                 <action android:name="start_channel_reader" />
             </intent-filter>

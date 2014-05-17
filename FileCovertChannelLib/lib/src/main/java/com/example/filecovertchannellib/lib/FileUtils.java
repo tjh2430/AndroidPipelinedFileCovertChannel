@@ -1,6 +1,8 @@
 package com.example.filecovertchannellib.lib;
 
 import android.content.Context;
+import android.os.Environment;
+import android.util.Log;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -11,11 +13,13 @@ import java.io.IOException;
  */
 public class FileUtils
 {
-    public static final String PATH_ROOT = "/data/data/com.example.filepipelinecovertchannel.app/files/";
+    //public static final String PATH_ROOT = "/data/data/com.example.filepipelinecovertchannel.app/files/";
     public static final String PRIMARY_DATA_FILE = "control_d.txt";
     public static final String PRIMARY_READ_READY_FILE = "control_rr.txt";
     public static final String PRIMARY_WRITE_READY_FILE = "control_wr.txt";
     public static final int DEFAULT_SLEEP_INTERVAL = 5;
+
+    private static final File rootDirectory = Environment.getExternalStorageDirectory();
 
     /**
      * Updates the timestamp of the given file to the current time.
@@ -72,16 +76,25 @@ public class FileUtils
 
     public static File getPrimaryDataFile()
     {
-        return new File(PATH_ROOT, PRIMARY_DATA_FILE);
+        return new File(rootDirectory, PRIMARY_DATA_FILE);
+        //return new File(PATH_ROOT, PRIMARY_DATA_FILE);
     }
 
     public static File getPrimaryReadReadyFile()
     {
-        return new File(PATH_ROOT, PRIMARY_READ_READY_FILE);
+        // TODO: Remove
+        File rrF = new File(rootDirectory, PRIMARY_READ_READY_FILE);
+        //File rrF = new File(PATH_ROOT, PRIMARY_READ_READY_FILE);
+        Log.d("FileUtils", "Made read ready file with path " + rrF.getAbsolutePath());
+        return rrF;
+
+        // TODO: Uncomment
+        //return new File(PATH_ROOT, PRIMARY_READ_READY_FILE);
     }
 
     public static File getPrimaryWriteReadyFile()
     {
-        return new File(PATH_ROOT, PRIMARY_WRITE_READY_FILE);
+        return new File(rootDirectory, PRIMARY_WRITE_READY_FILE);
+        //return new File(PATH_ROOT, PRIMARY_WRITE_READY_FILE);
     }
 }

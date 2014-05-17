@@ -1,59 +1,78 @@
 package com.example.filepipelinecovertchannelreceiver.app;
 
 import android.app.Activity;
+import android.content.ComponentName;
+import android.content.Intent;
+import android.content.ServiceConnection;
 import android.os.Bundle;
+import android.os.IBinder;
 import android.util.Log;
 import android.widget.TextView;
 
 import com.example.filecovertchannellib.lib.FileChannel;
 import com.example.filecovertchannellib.lib.FileUtils;
+import com.example.filepipelinecovertchannelreceiver.app.MessageReceiver.MessageBinder;
 
 import java.io.File;
 import java.io.IOException;
 
 
-public class MainActivity extends Activity
+public class MainActivity extends Activity implements ServiceConnection
 {
     private static final String TAG = "com.example.filepipelinecovertchannelreceiver.app.MainActivity";
 
     private TextView outputTextView;
-    private FileChannel channel;
-    private File dataFile;
-    private File readReadyFile;
-    private File writeReadyFile;
-    private long lastUpdateTime;
-    private String receiveMessage;
+    private MessageReceiver receiverService;
+    private StringBuilder message;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        dataFile = FileUtils.getPrimaryDataFile();
-        readReadyFile = FileUtils.getPrimaryReadReadyFile();
-        writeReadyFile = FileUtils.getPrimaryWriteReadyFile();
-        lastUpdateTime = 0;
 
-        outputTextView = (TextView) findViewById(R.id.received_message);
-        // Initializing channel
-        try {
-            channel = new FileChannel(dataFile, readReadyFile, writeReadyFile, this, FileUtils.DEFAULT_SLEEP_INTERVAL, FileChannel.CHANNEL_MODE.RECEIVER);
-            channel.openChannel();
-        } catch (IOException e) {
-            Log.e(TAG, "Unable to instantiate primary channel");
-        }
+        message = new StringBuilder();
+        receiverService = null;
 
-        // Set writeReady flag
-        try {
-            FileUtils.touch(writeReadyFile, this);
-        } catch (IOException e) {
-            Log.e(TAG, "Unable to touch writeReadyFile");
-        }
+        Intent receiverServiceIntent = new Intent("com.example.filepipelinecovertchannelreceiver.app.MessageReceiver");
+        bindService(receiverServiceIntent, this, BIND_AUTO_CREATE);
     }
 
     @Override
     protected  void onResume()
     {
-        // TODO: Put channel listening stuff and output here
-        outputTextView.setText(receiveMessage);
+        super.onResume();
+
+        if(receiverService != null)
+        {
+            updateMessageDisplay();
+        }
+    }
+
+    @Override
+    public void onServiceConnected(ComponentName componentName, IBinder iBinder)
+    {
+        MessageBinder messageBinder = (MessageBinder) iBinder;
+        receiverService = messageBinder.getService();
+    }
+
+    @Override
+    public void onServiceDisconnected(ComponentName componentName)
+    {
+        receiverService = null;
+    }
+
+    public void updateMessageDisplay()
+    {
+        String receivedMessage = receiverService.getMessage();
+
+        if(receivedMessage != null)
+        {
+            message.append(receivedMessage);
+            outputTextView.setText(message.toString());
+        }
+        else
+        {
+            Log.d(TAG, "Null message received");
+        }
     }
 }

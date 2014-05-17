@@ -109,6 +109,9 @@ public class FileChannel
         throwIfNotSender();
         throwIfNotOpen();
 
+        char bitAsChar = bit ? '1' : '0';
+        Log.d(TAG, "Sending bit [" + bitAsChar + "]");
+
         writeReadyLastUpdate = FileUtils.waitOn(writeReady, writeReadyLastUpdate, sleepInterval);
         if(bit)
         {
@@ -116,6 +119,8 @@ public class FileChannel
         }
 
         FileUtils.touch(readReady, cxt);
+
+        Log.d(TAG, "Bit sent");
     }
 
     public String receiveMessage()
@@ -195,6 +200,8 @@ public class FileChannel
         throwIfNotReceiver();
         throwIfNotOpen();
 
+        Log.d(TAG, "Receiving bit...");
+
         boolean oneBit;
         readReadyLastUpdate = FileUtils.waitOn(readReady, readReadyLastUpdate, sleepInterval);
         long dataFileTime = dataFile.lastModified();
@@ -207,6 +214,10 @@ public class FileChannel
         {
             oneBit = false;
         }
+
+
+        char bitAsChar = oneBit ? '1' : '0';
+        Log.d(TAG, "Received bit [" + bitAsChar + "]");
 
         return oneBit;
     }

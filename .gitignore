@@ -215,3 +215,5 @@ pip-log.txt
 
 #Mr Developer
 .mr.developer.cfg
+FilePipelineCovertChannel/.idea/libraries/appcompat_v7_19_1_0.xml
+.gitignore

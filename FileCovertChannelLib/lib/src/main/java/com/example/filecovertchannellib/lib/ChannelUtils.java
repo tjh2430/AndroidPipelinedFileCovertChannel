@@ -11,7 +11,7 @@ import java.io.IOException;
 /**
  * Created by Tim on 5/9/2014.
  */
-public class FileUtils
+public class ChannelUtils
 {
     //public static final String PATH_ROOT = "/data/data/com.example.filepipelinecovertchannel.app/files/";
     public static final String PRIMARY_DATA_FILE = "control_d.txt";
@@ -85,7 +85,7 @@ public class FileUtils
         // TODO: Remove
         File rrF = new File(rootDirectory, PRIMARY_READ_READY_FILE);
         //File rrF = new File(PATH_ROOT, PRIMARY_READ_READY_FILE);
-        Log.d("FileUtils", "Made read ready file with path " + rrF.getAbsolutePath());
+        Log.d("ChannelUtils", "Made read ready file with path " + rrF.getAbsolutePath());
         return rrF;
 
         // TODO: Uncomment

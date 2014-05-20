@@ -1,7 +1,3 @@
-package com.example.filecovertchannellib.lib;
-
-import android.content.Context;
-import android.util.Log;
 import java.io.File;
 import java.io.IOException;
 import java.io.InterruptedIOException;
@@ -11,19 +7,22 @@ import java.util.List;
 /**
  * Created by Tim on 5/11/2014.
  */
-public class FileChannel
+public class Channel
 {
-    // TODO: Make sure that the files get opened and closed properly and that
+    // # TODO: Make sure that the files get opened and closed properly and that
     // the waitOn() function takes into account the fact that the various files
     // can be deleted at any time
 
+    // # TODO: Add logic for waiting for the channel to be opened by the receiver
+    // and then handling when the channel is closed by the sender properly
+
     public enum CHANNEL_MODE {SENDER, RECEIVER}
 
-    private static final String TAG = "com.example.filecovertchannellib.lib.FileChannel";
+    private static final String TAG = "com.example.filecovertchannellib.lib.Channel";
     private static final byte ONE_BYTE = (byte) 1;
 
     private File readReady, writeReady, dataFile;
-    private Context cxt;
+    //private Context cxt;
     private CHANNEL_MODE mode;
     private long sleepInterval;
     private long readReadyLastUpdate, writeReadyLastUpdate, dataFileLastUpdateTime;
@@ -33,7 +32,8 @@ public class FileChannel
     // the receivers simply observe the files involved in the channel.
     private boolean channelOpen;
 
-    public FileChannel(File readReady, File writeReady, File dataFile, Context cxt, long sleepInterval, CHANNEL_MODE mode)
+    //public Channel(File readReady, File writeReady, File dataFile, Context cxt, long sleepInterval, CHANNEL_MODE mode)
+    public Channel(File readReady, File writeReady, File dataFile, long sleepInterval, CHANNEL_MODE mode)
         throws IOException
     {
         this.readReady = readReady;
@@ -41,7 +41,7 @@ public class FileChannel
         this.dataFile = dataFile;
         this.sleepInterval = sleepInterval;
         this.mode = mode;
-        this.cxt = cxt;
+        //this.cxt = cxt;
 
         channelOpen = false;
 
@@ -75,17 +75,20 @@ public class FileChannel
         int bytesSent = 0;
         try
         {
-            for (int i = 0; i < message.length; i++) {
+            for (int i = 0; i < message.length; i++) 
+	    {
                 sendByte(message[i]);
             }
         }
         catch(IOException e)
         {
-            Log.e(TAG, "sendMessate(byte[]) error: " + e.getMessage());
+            //Log.e(TAG, "sendMessate(byte[]) error: " + e.getMessage());
+	    ChannelUtils.output(TAG, "sendMessate(byte[]) error: " + e.getMessage());
         }
         catch(InterruptedException e)
         {
-            Log.e(TAG, "sendMessate(byte[]) error: " + e.getMessage());
+            //Log.e(TAG, "sendMessate(byte[]) error: " + e.getMessage());
+	    ChannelUtils.output(TAG, "sendMessate(byte[]) error: " + e.getMessage());
         }
 
         return bytesSent;
@@ -110,23 +113,25 @@ public class FileChannel
         throwIfNotOpen();
 
         char bitAsChar = bit ? '1' : '0';
-        Log.d(TAG, "Sending bit [" + bitAsChar + "]");
+	//ChannelUtils.output(TAG, "Sending bit [" + bitAsChar + "]");
 
         writeReadyLastUpdate = ChannelUtils.waitOn(writeReady, writeReadyLastUpdate, sleepInterval);
         if(bit)
         {
-            ChannelUtils.touch(dataFile, cxt);
+            //ChannelUtils.touch(dataFile, cxt);
+	    ChannelUtils.touch(dataFile);
         }
 
-        ChannelUtils.touch(readReady, cxt);
+        //ChannelUtils.touch(readReady, cxt);
+	ChannelUtils.touch(readReady);
 
-        Log.d(TAG, "Bit sent");
+	//ChannelUtils.output(TAG, "Bit sent");
     }
 
     public String receiveMessage()
     {
         throwIfNotReceiver();
-        throwIfNotOpen();
+        //throwIfNotOpen(); TODO: Uncomment or remove
 
         byte[] msgData = receiveMessageBytes();
 
@@ -136,7 +141,7 @@ public class FileChannel
     public byte[] receiveMessageBytes()
     {
         throwIfNotReceiver();
-        throwIfNotOpen();
+        //throwIfNotOpen(); TODO: Uncomment or remove
 
         List<Byte> dataBytes = new ArrayList<Byte>();
 
@@ -148,8 +153,15 @@ public class FileChannel
         }
         catch(InterruptedIOException e)
         {
-            Log.e(TAG, "Incomplete byte at byte position " + dataBytes.size());
+            //Log.e(TAG, "Incomplete byte at byte position " + dataBytes.size());
+	    //ChannelUtils.output(TAG, "Incomplete byte at byte position " + dataBytes.size());
+	    ChannelUtils.output("In Channel.receiveMessageBytes(): InterruptedIOException occurred; " + e.getMessage());
         }
+	catch(IOException e)
+	{
+	    //ChannelUtils.output(TAG, "Incomplete byte at byte position " + dataBytes.size());
+	    ChannelUtils.output("In Channel.receiveMessageBytes(): IOException occurred; " + e.getMessage());
+	}
 
         byte[] message = new byte[dataBytes.size()];
         for(int i = 0; i < dataBytes.size(); i++)
@@ -161,10 +173,10 @@ public class FileChannel
     }
 
     public byte receiveByte()
-        throws InterruptedIOException
+        throws InterruptedIOException, IOException
     {
         throwIfNotReceiver();
-        throwIfNotOpen();
+        //throwIfNotOpen(); TODO: Uncomment or remove
 
         byte dataByte = (byte) 0;
         for(int i = 0; i < 8; i++)
@@ -195,12 +207,13 @@ public class FileChannel
     }
 
     public boolean receiveBit()
-        throws InterruptedException
+        throws InterruptedException, IOException
     {
         throwIfNotReceiver();
-        throwIfNotOpen();
+        //throwIfNotOpen(); TODO: Uncomment or remove
 
-        Log.d(TAG, "Receiving bit...");
+	//ChannelUtils.output(TAG, "Receiving bit...");
+	ChannelUtils.touch(writeReady);
 
         boolean oneBit;
         readReadyLastUpdate = ChannelUtils.waitOn(readReady, readReadyLastUpdate, sleepInterval);
@@ -217,7 +230,7 @@ public class FileChannel
 
 
         char bitAsChar = oneBit ? '1' : '0';
-        Log.d(TAG, "Received bit [" + bitAsChar + "]");
+	//ChannelUtils.output(TAG, "Received bit [" + bitAsChar + "]");
 
         return oneBit;
     }
@@ -227,13 +240,25 @@ public class FileChannel
     {
         throwIfNotSender();
 
+	if(channelOpen)
+	{
+	    return; // Channel is already open
+	}
+
         // Note that the order of creation for these files is potentially significant since
         // any receiver process which is observing this channel will start attempting to
         // read data when it observes the presence of the readReady file, so this file should
         // be created last.
+
+	/*
         ChannelUtils.touch(writeReady, cxt);
         ChannelUtils.touch(dataFile, cxt);
         ChannelUtils.touch(readReady, cxt);
+	*/
+
+        ChannelUtils.touch(writeReady);
+        ChannelUtils.touch(dataFile);
+        ChannelUtils.touch(readReady);
 
         channelOpen = true;
     }
@@ -258,6 +283,12 @@ public class FileChannel
         channelOpen = false;
     }
 
+    public void waitForChannelToOpen()
+    {
+	throwIfNotReceiver();
+
+	// TODO: # implement
+    }
 
     private static long getLastUpdateTime(File file)
         throws IllegalArgumentException, IOException

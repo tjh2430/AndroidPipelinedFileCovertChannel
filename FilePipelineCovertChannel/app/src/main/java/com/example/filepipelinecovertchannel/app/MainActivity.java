@@ -7,8 +7,8 @@ import android.view.View;
 import android.widget.EditText;
 import android.widget.TextView;
 
+import com.example.filecovertchannellib.lib.ChannelUtils;
 import com.example.filecovertchannellib.lib.FileChannel;
-import com.example.filecovertchannellib.lib.FileUtils;
 
 import java.io.File;
 import java.io.IOException;
@@ -29,13 +29,13 @@ public class MainActivity extends Activity
         messageEntry = (EditText) findViewById(R.id.messageEntry);
         outputDisplay = (TextView) findViewById(R.id.statusMessageDisplay);
 
-        File dataFile = FileUtils.getPrimaryDataFile();
-        File readReadyFile = FileUtils.getPrimaryReadReadyFile();
-        File writeReadyFile = FileUtils.getPrimaryWriteReadyFile();
+        File dataFile = ChannelUtils.getPrimaryDataFile();
+        File readReadyFile = ChannelUtils.getPrimaryReadReadyFile();
+        File writeReadyFile = ChannelUtils.getPrimaryWriteReadyFile();
 
         try
         {
-            channel = new FileChannel(dataFile, readReadyFile, writeReadyFile, this, FileUtils.DEFAULT_SLEEP_INTERVAL, FileChannel.CHANNEL_MODE.SENDER);
+            channel = new FileChannel(dataFile, readReadyFile, writeReadyFile, this, ChannelUtils.DEFAULT_SLEEP_INTERVAL, FileChannel.CHANNEL_MODE.SENDER);
             channel.openChannel();
         }
         catch(IOException e)

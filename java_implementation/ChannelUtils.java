@@ -92,7 +92,12 @@ public class ChannelUtils
         long updatedTime;
         while(true)
         {
-            if(syncFile.exists() && syncFile.lastModified() > lastUpdateTime)
+	    if(!syncFile.exists())
+	    {
+		return -1;
+	    }
+
+	    if(syncFile.lastModified() > lastUpdateTime)
             {
                 updatedTime = syncFile.lastModified();
                 break;

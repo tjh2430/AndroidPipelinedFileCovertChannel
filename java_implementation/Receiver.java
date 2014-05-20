@@ -34,7 +34,7 @@ public class Receiver extends Thread
 	for(int i = 0; i < pipes.size(); i++)
 	{
 	    MessageReceiverThread receiver = new MessageReceiverThread(pipes.get(i), messageQueue, i);
-	    receiver.run();
+	    receiver.start();
 	}
 
 	while(true)
@@ -54,9 +54,11 @@ public class Receiver extends Thread
 	    }
 
 	    // TODO: Remove
-	    ChannelUtils.output("Received message block \"" + msgBlock + "\"");
+	    ChannelUtils.output("Received message block \"" + msgBlock.getMessage() + "\"\n");
 
 	    msgBuilder.addMessageBlock(msgBlock);
+
+	    ChannelUtils.output("Current Message:\n\n" + msgBuilder.viewNextMessage());
 
 	    // TODO: Print message blocks in sequence if first message block(s)
 	    // is/are available
@@ -79,7 +81,23 @@ public class Receiver extends Thread
 	@Override
 	public void run()	    
 	{
+	    try
+	    {
+		messageChannel.waitForChannelToOpen();
+	    }
+	    catch(InterruptedException e)
+	    {
+		ChannelUtils.output("InterruptedException in MessageReceiverThread.run(): unable to open message channel; thread exiting");
+		return;
+	    }
+
+	    // TODO: Remove
+	    //System.out.println("Channel open; listening for message...");
+	    
 	    String msgString = messageChannel.receiveMessage();
+
+	    // TODO: Remove
+	    //System.out.println("Received message \"" + msgString + "\"");
 
 	    try
 	    {
@@ -88,7 +106,7 @@ public class Receiver extends Thread
 	    catch(InterruptedException e)
 	    {
 		ChannelUtils.output("InterruptedException in MessageReceiverThread.run(): Received message block \"" + msgString + "\" but could not add it to the message queue");
-	    }
+	    }	    
 	}
     }
 
@@ -153,12 +171,10 @@ public class Receiver extends Thread
 	}
 
 	/**
-	 * Gets the next message which has been received. Note
-	 * that this operation changes the state of the MessageBuilder
-	 * object as it removes a message block from each pipleline 
-	 * message queue (if it exists). This method also assumes
-	 * that an empty message queue in the sequence indicates the
-	 * end of that message.
+	 * Gets the next message which has been received. Note that this operation changes
+	 * the state of the MessageBuilder object as it removes a message block from each pipleline 
+	 * message queue (if it exists). This method also assumes that an empty message queue in the
+	 * sequence indicates the end of that message.
 	 */
 	public String getNextMessage()
 	{
@@ -178,6 +194,32 @@ public class Receiver extends Thread
 		{
 		    // Reached the end of the current message
 		    break;
+		}
+	    }
+
+	    return msgString.toString();
+	}
+
+	/**
+	 * Gets the next message which has been received. This is a non-state changing version
+	 * of getNextMessage() (i.e. all the message blocks retrieved will remain in the 
+	 * message message queues). Unlike getNextMessage(), this method does not assume that an
+	 * empty message queue in the sequence indicates the end of that message.
+	 */
+	public String viewNextMessage()
+	{
+	    StringBuilder msgString = new StringBuilder();
+
+	    //for(Integer key: msgBlocks.keySet())
+	    for(int i = 0; i < numPipes; i++)
+	    {
+		Integer key = new Integer(i);
+		List<String> blockList = msgBlocks.get(key);
+		
+		if(blockList != null && blockList.size() > 0)
+		{
+		    String msgBlock = blockList.get(0);
+		    msgString.append(msgBlock);
 		}
 	    }
 
@@ -274,11 +316,12 @@ public class Receiver extends Thread
     {
 	// TODO: Refactor to allow a REPL message sending loop
 
-	if(args.length < 1 || args.length > 2)
+	if(args.length > 1)
 	{
 	    usage(); // Print usage message and exit    
 	}
 
+	/* TODO: Uncomment or remove
 	int numPipes = Integer.valueOf(args[0]);
 		
 	if(!ChannelUtils.isValidNumberOfPipes(numPipes))
@@ -286,15 +329,15 @@ public class Receiver extends Thread
 	    ChannelUtils.output("numPipes must be greater than zero and less than or equal to " + ChannelUtils.getMaxNumPipes());
 	    System.exit(0);
 	}
+	*/
 
 	List<Channel> pipes = null;
 
 	try
-	{
-	    
-	    if(args.length == 2)
+	{	    
+	    if(args.length == 1)
 	    {
-		long sleepInterval = Long.valueOf(args[1]);
+		long sleepInterval = Long.valueOf(args[0]);
 		pipes = ChannelUtils.getPipes(sleepInterval, Channel.CHANNEL_MODE.RECEIVER);	    
 	    }
 	    else
@@ -308,13 +351,12 @@ public class Receiver extends Thread
 	}
 
 	Receiver messageReceiver = new Receiver(pipes);
-	messageReceiver.run();
+	messageReceiver.start();
     }
 
     private static void usage()
     {
-	// TODO: Update
-	System.out.println("java Receiver <num_pipes> [wait_interval]");
+	System.out.println("java Receiver [wait_interval]");
 	System.exit(0);
     }    
 }

@@ -113,7 +113,10 @@ public class Channel
         throwIfNotOpen();
 
         char bitAsChar = bit ? '1' : '0';
+
+	// TODO: Remove
 	//ChannelUtils.output(TAG, "Sending bit [" + bitAsChar + "]");
+	//ChannelUtils.output("Sending bit [" + bitAsChar + "]");
 
         writeReadyLastUpdate = ChannelUtils.waitOn(writeReady, writeReadyLastUpdate, sleepInterval);
         if(bit)
@@ -130,8 +133,10 @@ public class Channel
 
     public String receiveMessage()
     {
-        throwIfNotReceiver();
-        //throwIfNotOpen(); TODO: Uncomment or remove
+        throwIfNotReceiver();        
+
+	// TODO: Uncomment or remove
+        //throwIfNotOpen(); 
 
         byte[] msgData = receiveMessageBytes();
 
@@ -146,14 +151,29 @@ public class Channel
         List<Byte> dataBytes = new ArrayList<Byte>();
 
         try {
-            while (channelIsOpen())
+            while(channelIsOpen())
             {
-                dataBytes.add(receiveByte());
+		byte dataByte = receiveByte();
+
+		/*
+		if(dataByte < 0)
+		{
+		    // TODO: Remove
+		    System.out.println("Closing channel; negative byte returned");
+
+		    break; // Channel has been closed
+		}
+		else
+		{
+		    dataBytes.add(dataByte);
+		}
+		*/
+
+		dataBytes.add(dataByte);
             }
         }
         catch(InterruptedIOException e)
         {
-            //Log.e(TAG, "Incomplete byte at byte position " + dataBytes.size());
 	    //ChannelUtils.output(TAG, "Incomplete byte at byte position " + dataBytes.size());
 	    ChannelUtils.output("In Channel.receiveMessageBytes(): InterruptedIOException occurred; " + e.getMessage());
         }
@@ -176,7 +196,9 @@ public class Channel
         throws InterruptedIOException, IOException
     {
         throwIfNotReceiver();
-        //throwIfNotOpen(); TODO: Uncomment or remove
+
+	// TODO: Uncomment or remove
+        //throwIfNotOpen();
 
         byte dataByte = (byte) 0;
         for(int i = 0; i < 8; i++)
@@ -186,57 +208,99 @@ public class Channel
                 throw new InterruptedIOException("Incomplete data read: channel closed while reading a byte");
             }
 
-            boolean oneBit;
+            byte bit;
 
             try
             {
-                oneBit = receiveBit();
+                bit = receiveBit();
             }
             catch(InterruptedException e)
             {
                 throw new InterruptedIOException("Incomplete data read: IOException occurred while reading a byte");
             }
 
-            if(oneBit)
+	    /* TODO: Uncomment or remove
+            if(bit >= 0)
             {
-                dataByte |= (ONE_BYTE << i);
+		// TODO: Remove
+                //dataByte |= (ONE_BYTE << i);
+		dataByte |= (bit << i);
             }
+	    else
+	    {
+		// Channel has been closed
+
+		// TODO: Uncomment or remove
+		//dataByte = (byte) -1; 
+
+		throw new InterruptedIOException("Incomplete data read: channel closed while reading a byte");
+	    }	   
+	    */
+
+	    dataByte |= (bit << i);
         }
 
         return dataByte;
     }
 
-    public boolean receiveBit()
+    public byte receiveBit()
         throws InterruptedException, IOException
     {
         throwIfNotReceiver();
-        //throwIfNotOpen(); TODO: Uncomment or remove
 
+	// TODO: Uncomment or remove
+        //throwIfNotOpen(); 
+
+	// TODO: Remove
 	//ChannelUtils.output(TAG, "Receiving bit...");
 	ChannelUtils.touch(writeReady);
 
-        boolean oneBit;
-        readReadyLastUpdate = ChannelUtils.waitOn(readReady, readReadyLastUpdate, sleepInterval);
+        byte bit;
+
+	if(!channelOpen)
+	{
+	    waitForChannelToOpen();
+	    readReadyLastUpdate = readReady.lastModified();
+	}
+	else
+	{
+	    readReadyLastUpdate = ChannelUtils.waitOn(readReady, readReadyLastUpdate, sleepInterval);
+	}
+
+	if(readReadyLastUpdate < 0 || !dataFile.exists())
+	{
+	    // The channel has been closed by the sender
+	    channelOpen = false;
+
+	    // TODO: Remove
+	    //ChannelUtils.output("Done receiving: channel closed");
+
+	    return (byte) -1;
+	}
+
         long dataFileTime = dataFile.lastModified();
+
         if(dataFileTime > dataFileLastUpdateTime)
         {
-            oneBit = true;
+            bit = (byte) 1;
             dataFileLastUpdateTime = dataFileTime;
         }
         else
         {
-            oneBit = false;
+            bit = (byte) 0;
         }
 
 
-        char bitAsChar = oneBit ? '1' : '0';
+	// TODO: Remove
+        //char bitAsChar = bit ? '1' : '0';
 	//ChannelUtils.output(TAG, "Received bit [" + bitAsChar + "]");
+	//ChannelUtils.output("Received bit [" + bit + "]");
 
-        return oneBit;
+        return bit;
     }
 
     public void openChannel()
-        throws IOException
+        throws IOException, InterruptedException
     {
         throwIfNotSender();
 
@@ -261,12 +325,19 @@ public class Channel
         ChannelUtils.touch(readReady);
 
         channelOpen = true;
+
+	sendBit(false); // Used to sync up the sender and receiver (otherwise the receiver will miss the first data bit)
     }
 
     public void closeChannel()
         throws IOException
     {
         throwIfNotSender();
+
+	if(!channelOpen)
+	{
+	    return; // Nothing to do
+	}
 
         // Note that the order of deletion for these files is potentially significant since
         // any receiver process which is observing this channel will check for the existence
@@ -284,10 +355,19 @@ public class Channel
     }
 
     public void waitForChannelToOpen()
+	throws InterruptedException
     {
 	throwIfNotReceiver();
+	
+	// TODO: Remove
+	System.out.println("Waiting for channel to open...");
 
-	// TODO: # implement
+	while(!readReady.exists())
+	{
+	    Thread.sleep(sleepInterval); // Wait for the read ready file to exist
+	}
+
+	channelOpen = true;
     }
 
     private static long getLastUpdateTime(File file)
@@ -327,7 +407,7 @@ public class Channel
     }
 
     private void throwIfNotOpen() {
-        if((mode == CHANNEL_MODE.SENDER && !channelOpen) || !channelIsOpen())
+        if(!channelIsOpen())
         {
             throw new IllegalStateException("Invalid state: channel must be open before sending or receiving data");
         }

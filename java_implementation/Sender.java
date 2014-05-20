@@ -46,6 +46,11 @@ public class Sender
 		ChannelUtils.output("In Sender.sendMessage(): IOException occurred while attempting to open channel");
 		return;
 	    }
+	    catch(InterruptedException e)
+	    {
+		ChannelUtils.output("In Sender.sendMessage(): InterruptedException occurred while attempting to open channel");
+		return;
+	    }
 
 	    messageChannel.sendMessage(msg);
 	}
@@ -56,10 +61,7 @@ public class Sender
 	    {
 		// TODO: Add a message queue for acknowledging when a message had been sent
 		MessageSenderThread sender = new MessageSenderThread(pipes.get(i), msgs[i]);
-		sender.run();
-
-		// TODO: Remove
-		System.out.println("HERE");
+		sender.start();
 	    }
 	}
     }
@@ -82,6 +84,10 @@ public class Sender
 	    {
 		messageChannel.openChannel(); // Make sure that the channel is open
 		messageChannel.sendMessage(msg);
+
+		// TODO: Remove
+		System.out.println("Message \"" + msg + "\" sent! Closing the channel");
+
 		messageChannel.closeChannel(); // Tells the receiver that the transmission is complete 
 	    }
 	    catch(IOException e)
@@ -89,9 +95,11 @@ public class Sender
 		ChannelUtils.output("In MessageSenderThread.run(): IOException occurred while attempting to use channel");
 		return;
 	    }
-
-	    // TODO: Remove
-	    ChannelUtils.output("Message block \"" + msg + "\" sent");
+	    catch(InterruptedException e)
+	    {
+		ChannelUtils.output("In Sender.run(): InterruptedException occurred while attempting to open channel");
+		return;
+	    }
 	}
     }
 

@@ -19,7 +19,7 @@ public class Channel
     //private Context cxt;
     private CHANNEL_MODE mode;
     private long sleepInterval;
-    private long readReadyLastUpdate, writeReadyLastUpdate, dataFileLastUpdateTime;
+    private long readReadyLastUpdateTime, writeReadyLastUpdateTime, dataFileLastUpdateTime;
 
     // Used to record whether or not the channel is currently open; only used in sender
     // mode since the opening on closing of channels is managed through the sender and
@@ -40,8 +40,8 @@ public class Channel
         channelOpen = false;
 
 	/* TODO: Uncomment or remove
-        readReadyLastUpdate = getLastUpdateTime(readReady);
-        writeReadyLastUpdate = getLastUpdateTime(readReady);
+        readReadyLastUpdateTime = getLastUpdateTime(readReady);
+        writeReadyLastUpdateTime = getLastUpdateTime(readReady);
         dataFileLastUpdateTime = getLastUpdateTime(readReady);
 	*/
     }
@@ -103,7 +103,7 @@ public class Channel
         }
 
 	// Wait for the last bit to be read and then close the channel
-	ChannelUtils.waitOn(writeReady, writeReadyLastUpdate, sleepInterval);
+	ChannelUtils.waitOn(writeReady, writeReadyLastUpdateTime, sleepInterval);
 	closeChannel();
 
         return bytesSent;
@@ -127,13 +127,12 @@ public class Channel
         throwIfNotSender();
         throwIfNotOpen();
 
-        char bitAsChar = bit ? '1' : '0';
-
 	// TODO: Remove
+        char bitAsChar = bit ? '1' : '0';
 	//ChannelUtils.output(TAG, "Sending bit [" + bitAsChar + "]");
 	//ChannelUtils.output("Sending bit [" + bitAsChar + "]");
 
-        writeReadyLastUpdate = ChannelUtils.waitOn(writeReady, writeReadyLastUpdate, sleepInterval);
+        writeReadyLastUpdateTime = ChannelUtils.waitOn(writeReady, writeReadyLastUpdateTime, sleepInterval);
         if(bit)
         {
             //ChannelUtils.touch(dataFile, cxt);
@@ -148,10 +147,8 @@ public class Channel
 
     public String receiveMessage()
     {
-        throwIfNotReceiver();        
-
-	// TODO: Uncomment or remove
-        //throwIfNotOpen(); 
+        throwIfNotReceiver(); 
+        throwIfNotOpen(); 
 
         byte[] msgData = receiveMessageBytes();
 
@@ -161,7 +158,7 @@ public class Channel
     public byte[] receiveMessageBytes()
     {
         throwIfNotReceiver();
-        //throwIfNotOpen(); TODO: Uncomment or remove
+        throwIfNotOpen(); 
 
         List<Byte> dataBytes = new ArrayList<Byte>();
 
@@ -176,31 +173,15 @@ public class Channel
 		    break;
 		}
 
-		/*
-		if(dataByte < 0)
-		{
-		    // TODO: Remove
-		    System.out.println("Closing channel; negative byte returned");
-
-		    break; // Channel has been closed
-		}
-		else
-		{
-		    dataBytes.add(dataByte);
-		}
-		*/
-
 		dataBytes.add(dataByte);
             }
         }
         catch(InterruptedIOException e)
         {
-	    //ChannelUtils.output(TAG, "Incomplete byte at byte position " + dataBytes.size());
 	    ChannelUtils.output("In Channel.receiveMessageBytes(): InterruptedIOException occurred; " + e.getMessage());
         }
 	catch(IOException e)
 	{
-	    //ChannelUtils.output(TAG, "Incomplete byte at byte position " + dataBytes.size());
 	    ChannelUtils.output("In Channel.receiveMessageBytes(): IOException occurred; " + e.getMessage());
 	}
 
@@ -217,9 +198,7 @@ public class Channel
         throws InterruptedIOException, IOException
     {
         throwIfNotReceiver();
-
-	// TODO: Uncomment or remove
-        //throwIfNotOpen();
+        throwIfNotOpen();
 
         byte dataByte = (byte) 0;
         for(int i = 0; i < 8; i++)
@@ -236,13 +215,22 @@ public class Channel
             {
                 bit = receiveBit();
             }
+            catch(IOException e)
+            {
+                throw new InterruptedIOException("Incomplete data read: IOException occurred while reading a byte (bit position " + i + ")");
+            }
             catch(InterruptedException e)
             {
-                throw new InterruptedIOException("Incomplete data read: IOException occurred while reading a byte");
+                throw new InterruptedIOException("Incomplete data read: InterruptedException occurred while reading a byte (bit position " + i + ")");
             }
 
 	    if(!channelOpen)
 	    {
+		// TODO: Remove
+		//System.out.println("Channel closed at bit " + i);
+		//
+
+		/* TODO: Uncomment or remove
 		if(i > 0)
 		{
 		    // If this wasn't the first bit read for the current byte, assume the transmission got
@@ -253,6 +241,9 @@ public class Channel
 		{
 		    break;
 		}
+		*/
+
+		break;
 	    }
 
 	    /* TODO: Uncomment or remove
@@ -276,6 +267,12 @@ public class Channel
 	    dataByte |= (bit << i);
         }
 
+	// TODO: Remove
+	//String s1 = String.format("%8s", Integer.toBinaryString(dataByte & 0xFF)).replace(' ', '0');
+	//System.out.println("dataByte = " + s1);
+	//
+
+
         return dataByte;
     }
 
@@ -283,9 +280,7 @@ public class Channel
         throws InterruptedException, IOException
     {
         throwIfNotReceiver();
-
-	// TODO: Uncomment or remove
-        //throwIfNotOpen(); 
+	throwIfNotOpen(); 
 
 	// TODO: Remove
 	//ChannelUtils.output(TAG, "Receiving bit...");
@@ -293,17 +288,21 @@ public class Channel
 
         byte bit;
 
+	/* TODO: Uncomment or remove
 	if(!channelOpen)
 	{
 	    waitForChannelToOpen();
-	    readReadyLastUpdate = readReady.lastModified();
+	    readReadyLastUpdateTime = readReady.lastModified();
 	}
 	else
 	{
-	    readReadyLastUpdate = ChannelUtils.waitOn(readReady, readReadyLastUpdate, sleepInterval);
+	    readReadyLastUpdateTime = ChannelUtils.waitOn(readReady, readReadyLastUpdateTime, sleepInterval);
 	}
+	*/
 
-	if(readReadyLastUpdate < 0 || !dataFile.exists())
+	readReadyLastUpdateTime = ChannelUtils.waitOn(readReady, readReadyLastUpdateTime, sleepInterval);
+
+	if(readReadyLastUpdateTime < 0 || !dataFile.exists())
 	{
 	    // The channel has been closed by the sender
 	    channelOpen = false;
@@ -357,12 +356,13 @@ public class Channel
 	*/
 
 	// TODO: Make sure that this is the correct ordering
-        writeReadyLastUpdate = ChannelUtils.touch(writeReady);
+        writeReadyLastUpdateTime = ChannelUtils.touch(writeReady);
         dataFileLastUpdateTime = ChannelUtils.touch(dataFile);
-        readReadyLastUpdate = ChannelUtils.touch(readReady);
+        readReadyLastUpdateTime = ChannelUtils.touch(readReady);
 
         channelOpen = true;
 
+	// TODO: Figure out if this is still necessary
 	sendBit(false); // Used to sync up the sender and receiver (otherwise the receiver will miss the first data bit)
     }
 
@@ -392,19 +392,28 @@ public class Channel
     }
 
     public void waitForChannelToOpen()
-	throws InterruptedException
+	throws InterruptedException, IOException
     {
 	throwIfNotReceiver();
 	
 	// TODO: Remove
 	System.out.println("Waiting for channel to open...");
 
-	while(!readReady.exists())
+	while(!readReady.exists() && !dataFile.exists() && !writeReady.exists())
 	{
 	    Thread.sleep(sleepInterval); // Wait for the read ready file to exist
 	}
 
+	readReadyLastUpdateTime = readReady.lastModified();
+	writeReadyLastUpdateTime = writeReady.lastModified();
+	dataFileLastUpdateTime = dataFile.lastModified();
+
 	channelOpen = true;
+
+	// TODO: Uncomment or remove
+	// The first "bit" transmitted over the channel is just used for initiating the transmission
+	// and is not actually a data bit and therefore it is ignored
+	receiveBit();
     }
 
     private static long getLastUpdateTime(File file)

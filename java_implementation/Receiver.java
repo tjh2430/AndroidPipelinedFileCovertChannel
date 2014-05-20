@@ -90,14 +90,13 @@ public class Receiver extends Thread
 		ChannelUtils.output("InterruptedException in MessageReceiverThread.run(): unable to open message channel; thread exiting");
 		return;
 	    }
+	    catch(IOException e)
+	    {
+		ChannelUtils.output("IOException in MessageReceiverThread.run(): unable to open message channel; thread exiting");
+		return;
+	    }
 
-	    // TODO: Remove
-	    //System.out.println("Channel open; listening for message...");
-	    
 	    String msgString = messageChannel.receiveMessage();
-
-	    // TODO: Remove
-	    //System.out.println("Received message \"" + msgString + "\"");
 
 	    try
 	    {
@@ -155,7 +154,7 @@ public class Receiver extends Thread
 	    }
 
 	    // TODO: Remove
-	    System.out.println("Adding message block \"" + msg + "\" to message queue [" + blockListKey + "]");
+	    //System.out.println("Adding message block \"" + msg + "\" to message queue [" + blockListKey + "]");
 
 	    List<String> blockList = msgBlocks.get(blockListKey);
 	    
@@ -167,7 +166,7 @@ public class Receiver extends Thread
 		}
 
 		// TODO: Remove
-		System.out.println("Creating new message queue for sequence number [" + blockListKey + "]");
+		//System.out.println("Creating new message queue for sequence number [" + blockListKey + "]");
 
 		blockList = new LinkedList<String>();
 	    }
@@ -176,7 +175,7 @@ public class Receiver extends Thread
 	    msgBlocks.put(blockListKey, blockList);
 	    
 	    // TODO: Remove
-	    System.out.println("New message: \"" + viewNextMessage() + "\"");
+	    //System.out.println("New message: \"" + viewNextMessage() + "\"");
 	}
 
 	/**

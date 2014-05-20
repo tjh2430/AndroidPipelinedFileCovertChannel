@@ -1,6 +1,7 @@
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.List;
 
@@ -11,6 +12,11 @@ import java.util.List;
  */
 public class Sender
 {
+    private static final int MIN_CMD_ARGS = 2;
+    private static final int MAX_CMD_ARGS = 6;
+    private static final String NUM_BYTES_ARG_FLAG = "-b";
+    private static final String WAIT_INTERVAL_ARG_FLAG = "-w";
+
     private List<Channel> pipes;
 
     public Sender(List<Channel> pipes)
@@ -108,7 +114,7 @@ public class Sender
     {
 	// TODO: Refactor to allow a REPL message sending loop
 
-	if(args.length < 2 || args.length > 3)
+	if(args.length < MIN_CMD_ARGS || args.length > MAX_CMD_ARGS)
 	{
 	    usage(); // Print usage message and exit    
 	}
@@ -140,6 +146,12 @@ public class Sender
 
 	List<Channel> pipes = null;
 
+	long[] optArgs;
+	if(args.length > MIN_CMD_ARGS)
+	{
+	    optArgs = parseOptionalArguments(args);
+	}
+
 	try
 	{
 	    if(args.length == 3)
@@ -163,8 +175,27 @@ public class Sender
 
     private static void usage()
     {
-	System.out.println("java Sender <message_file> <num_pipes> [wait_interval]");
+	System.out.println("java Sender <message_file> <num_pipes> [-b num_bytes] [-w wait_interval]");
 	System.exit(0);
+    }
+
+    private static long[] parseOptionalArguments(String[] args)
+    {
+	// 0: number of bytes to send
+	// 1: wait/sleep interval
+	long[] optArgs = new long[2]; 
+	
+	for(int i = MIN_CMD_ARGS; i < args.length; i += 2)
+	{
+	    if(args[i].equals(NUM_BYTES_ARG_FLAG))
+	    {
+
+	    }
+	    else if(args[i].equals(WAIT_INTERVAL_ARG_FLAG)
+	    {
+
+	    }
+	}
     }
 
     /**

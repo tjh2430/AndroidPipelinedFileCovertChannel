@@ -50,9 +50,12 @@ public class ChannelUtils
 
     /**
      * Updates the timestamp of the given file to the current time.
-     * Taken from http://www.intransitione.com/blog/touch-a-file-on-android/
+     * Taken from http://www.intransitione.com/blog/touch-a-file-on-android/.
+     * Returns the new last-updated time for the file.
      */
-    public static void touch(File file) throws IOException {
+    public static long touch(File file) throws IOException 
+    {
+	long lastUpdateTime;
         if(!file.exists())
         {
             File parent = file.getParentFile();
@@ -62,16 +65,20 @@ public class ChannelUtils
                         throw new IOException("Cannot create parent directories for file: " + file);
 
             file.createNewFile();
-            
+            lastUpdateTime = System.currentTimeMillis();
+
 	    //FileOutputStream out = cxt.openFileOutput(file.getName(), Context.MODE_WORLD_READABLE);
             //out.close();
         }
 	else
 	{
-	    boolean success = file.setLastModified(System.currentTimeMillis());
+            lastUpdateTime = System.currentTimeMillis();
+	    boolean success = file.setLastModified(lastUpdateTime);
 	    if (!success)
 		throw new IOException("Unable to set the last modification time for " + file);
 	}
+
+	return lastUpdateTime;
     }
 
     /**

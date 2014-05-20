@@ -9,15 +9,9 @@ import java.util.List;
  */
 public class Channel
 {
-    // # TODO: Make sure that the files get opened and closed properly and that
-    // the waitOn() function takes into account the fact that the various files
-    // can be deleted at any time
-
-    // # TODO: Add logic for waiting for the channel to be opened by the receiver
-    // and then handling when the channel is closed by the sender properly
-
     public enum CHANNEL_MODE {SENDER, RECEIVER}
 
+    // TODO: Remove both of these
     private static final String TAG = "com.example.filecovertchannellib.lib.Channel";
     private static final byte ONE_BYTE = (byte) 1;
 
@@ -45,9 +39,11 @@ public class Channel
 
         channelOpen = false;
 
+	/* TODO: Uncomment or remove
         readReadyLastUpdate = getLastUpdateTime(readReady);
         writeReadyLastUpdate = getLastUpdateTime(readReady);
         dataFileLastUpdateTime = getLastUpdateTime(readReady);
+	*/
     }
 
     /**
@@ -56,9 +52,16 @@ public class Channel
      * @return  The number of bytes successfully sent.
      */
     public int sendMessage(String message)
+	throws IOException, InterruptedException
     {
         throwIfNotSender();
-        throwIfNotOpen();
+
+	// TODO: Uncomment or remove
+        //throwIfNotOpen();
+
+
+	// Channel will be opened (if necessary) in sendMessage(byte[] message)
+	// and then closed once the message transmission is complete
         return sendMessage(message.getBytes());
     }
 
@@ -68,9 +71,17 @@ public class Channel
      * @return  The number of bytes successfully sent. Note that messages are limited to 2^32 bytes.
      */
     public int sendMessage(byte[] message)
+	throws IOException, InterruptedException
     {
         throwIfNotSender();
-        throwIfNotOpen();
+        
+	// TODO: Uncomment or remove
+        //throwIfNotOpen();
+
+	if(!channelOpen)
+	{
+	    openChannel();
+	}
 
         int bytesSent = 0;
         try
@@ -90,6 +101,10 @@ public class Channel
             //Log.e(TAG, "sendMessate(byte[]) error: " + e.getMessage());
 	    ChannelUtils.output(TAG, "sendMessate(byte[]) error: " + e.getMessage());
         }
+
+	// Wait for the last bit to be read and then close the channel
+	ChannelUtils.waitOn(writeReady, writeReadyLastUpdate, sleepInterval);
+	closeChannel();
 
         return bytesSent;
     }
@@ -155,6 +170,12 @@ public class Channel
             {
 		byte dataByte = receiveByte();
 
+		if(!channelOpen)
+		{
+		    // Channel was closed while reading that byte
+		    break;
+		}
+
 		/*
 		if(dataByte < 0)
 		{
@@ -205,7 +226,8 @@ public class Channel
         {
             if(!channelIsOpen())
             {
-                throw new InterruptedIOException("Incomplete data read: channel closed while reading a byte");
+		channelOpen = false;
+                throw new InterruptedIOException("Incomplete data read: channel closed while reading a byte (bit position " + i + ")");
             }
 
             byte bit;
@@ -218,6 +240,20 @@ public class Channel
             {
                 throw new InterruptedIOException("Incomplete data read: IOException occurred while reading a byte");
             }
+
+	    if(!channelOpen)
+	    {
+		if(i > 0)
+		{
+		    // If this wasn't the first bit read for the current byte, assume the transmission got
+		    // interrupted
+		    throw new InterruptedIOException("Incomplete data read: channel closed while reading a byte (bit position " + i + ")");
+		}
+		else
+		{
+		    break;
+		}
+	    }
 
 	    /* TODO: Uncomment or remove
             if(bit >= 0)
@@ -320,9 +356,10 @@ public class Channel
         ChannelUtils.touch(readReady, cxt);
 	*/
 
-        ChannelUtils.touch(writeReady);
-        ChannelUtils.touch(dataFile);
-        ChannelUtils.touch(readReady);
+	// TODO: Make sure that this is the correct ordering
+        writeReadyLastUpdate = ChannelUtils.touch(writeReady);
+        dataFileLastUpdateTime = ChannelUtils.touch(dataFile);
+        readReadyLastUpdate = ChannelUtils.touch(readReady);
 
         channelOpen = true;
 

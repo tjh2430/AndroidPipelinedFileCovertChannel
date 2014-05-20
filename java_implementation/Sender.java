@@ -39,20 +39,20 @@ public class Sender
 
 	    try
 	    {
-		messageChannel.openChannel(); // Make sure that the channel is open
+		// TODO: Uncomment or remove
+		//messageChannel.openChannel(); // Make sure that the channel is open
+		messageChannel.sendMessage(msg);
 	    }
 	    catch(IOException e)
 	    {
-		ChannelUtils.output("In Sender.sendMessage(): IOException occurred while attempting to open channel");
+		ChannelUtils.output("In Sender.sendMessage(): IOException occurred while attempting to send message on single channel");
 		return;
 	    }
 	    catch(InterruptedException e)
 	    {
-		ChannelUtils.output("In Sender.sendMessage(): InterruptedException occurred while attempting to open channel");
+		ChannelUtils.output("In Sender.sendMessage(): InterruptedException occurred while attempting to send message on single channel");
 		return;
-	    }
-
-	    messageChannel.sendMessage(msg);
+	    }	    
 	}
 	else
 	{
@@ -82,7 +82,8 @@ public class Sender
 	{
 	    try
 	    {
-		messageChannel.openChannel(); // Make sure that the channel is open
+		// TODO: Uncomment or remove
+		//messageChannel.openChannel(); // Make sure that the channel is open
 		messageChannel.sendMessage(msg);
 
 		// TODO: Remove

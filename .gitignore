@@ -219,3 +219,5 @@ FilePipelineCovertChannel/.idea/libraries/appcompat_v7_19_1_0.xml
 .gitignore
 *.class
 FilePipelineCovertChannel/.idea/libraries/support_v4_19_1_0.xml
+java_implementation/QuickTest.java
+java_implementation/FileTest.java

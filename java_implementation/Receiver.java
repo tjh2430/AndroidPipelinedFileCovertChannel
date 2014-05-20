@@ -154,6 +154,9 @@ public class Receiver extends Thread
 		throw new IllegalStateException("Error in Receiver.MessageBuider: sequence numbers must be greater than or equal to zero and less than the number of pipes; current number of pipes for this builder is " + numPipes);
 	    }
 
+	    // TODO: Remove
+	    System.out.println("Adding message block \"" + msg + "\" to message queue [" + blockListKey + "]");
+
 	    List<String> blockList = msgBlocks.get(blockListKey);
 	    
 	    if(blockList == null)
@@ -163,11 +166,17 @@ public class Receiver extends Thread
 		    throw new IllegalStateException("Error in Receiver.MessageBuider: cannot have have more sequence numbers than pipes; current number of pipes for this builder is " + numPipes);
 		}
 
+		// TODO: Remove
+		System.out.println("Creating new message queue for sequence number [" + blockListKey + "]");
+
 		blockList = new LinkedList<String>();
 	    }
 
 	    blockList.add(msg);
 	    msgBlocks.put(blockListKey, blockList);
+	    
+	    // TODO: Remove
+	    System.out.println("New message: \"" + viewNextMessage() + "\"");
 	}
 
 	/**
@@ -180,6 +189,7 @@ public class Receiver extends Thread
 	{
 	    StringBuilder msgString = new StringBuilder();
 
+	    // TODO: ensure iteration occurs in order
 	    for(Integer key: msgBlocks.keySet())
 	    {
 		List<String> blockList = msgBlocks.get(key);
@@ -316,6 +326,9 @@ public class Receiver extends Thread
     {
 	// TODO: Refactor to allow a REPL message sending loop
 
+	// TODO: Remove
+	//System.out.println("HERE");
+
 	if(args.length > 1)
 	{
 	    usage(); // Print usage message and exit    
@@ -343,7 +356,7 @@ public class Receiver extends Thread
 	    else
 	    {
 		pipes = ChannelUtils.getPipes(Channel.CHANNEL_MODE.RECEIVER);
-	    }
+	    }	    
 	}
 	catch(IOException e)
 	{

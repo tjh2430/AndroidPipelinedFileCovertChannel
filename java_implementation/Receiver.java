@@ -54,6 +54,7 @@ public class Receiver extends Thread
 	    }
 
 	    // TODO: Remove
+	    ChannelUtils.output("\n\n********************************************************************************\n");
 	    ChannelUtils.output("Received message block \"" + msgBlock.getMessage() + "\"\n");
 
 	    msgBuilder.addMessageBlock(msgBlock);

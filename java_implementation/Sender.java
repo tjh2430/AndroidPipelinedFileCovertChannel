@@ -2,7 +2,9 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.util.concurrent.LinkedBlockingQueue;
 import java.util.List;
 
 /**
@@ -15,8 +17,11 @@ public class Sender
     private static final int MIN_CMD_ARGS = 2;
     private static final int MAX_CMD_ARGS = 6;
     private static final String NUM_BYTES_ARG_FLAG = "-b";
+    private static final int NUM_BYTES_INDEX = 0;
     private static final String WAIT_INTERVAL_ARG_FLAG = "-w";
+    private static final int WAIT_INTERVAL_INDEX = 1;
 
+    private LinkedBlockingQueue<Integer> notificationQueue;
     private List<Channel> pipes;
 
     public Sender(List<Channel> pipes)
@@ -28,11 +33,16 @@ public class Sender
 	}
 
 	this.pipes = pipes;
+	notificationQueue = new LinkedBlockingQueue<Integer>();
     }
 
     public void sendMessage(String msg, int numPipes)
 	throws IllegalArgumentException
     {
+	// Used for profiling how long it takes to send the message
+	long startTime, endTime;
+	int numBytes = msg.getBytes().length;
+
 	if(numPipes <= 0 || numPipes > pipes.size())
 	{
 	    throw new IllegalArgumentException("In Sender.sendMessage(): numPipes value " + numPipes + " is invalid");
@@ -45,9 +55,9 @@ public class Sender
 
 	    try
 	    {
-		// TODO: Uncomment or remove
-		//messageChannel.openChannel(); // Make sure that the channel is open
+		startTime = System.nanoTime();
 		messageChannel.sendMessage(msg);
+		endTime = System.nanoTime();
 	    }
 	    catch(IOException e)
 	    {
@@ -62,25 +72,87 @@ public class Sender
 	}
 	else
 	{
+	    startTime = System.nanoTime();
+
 	    String[] msgs = splitMessage(msg, numPipes);
 	    for(int i = 0; i < msgs.length; i++)
 	    {
 		// TODO: Add a message queue for acknowledging when a message had been sent
-		MessageSenderThread sender = new MessageSenderThread(pipes.get(i), msgs[i]);
+		MessageSenderThread sender = new MessageSenderThread(pipes.get(i), msgs[i], notificationQueue, i);
 		sender.start();
 	    }
+
+	    // #TODO: pull responses off the message queue until all message pieces have been confirmed as being sent
+	    boolean[] msgStatus = new boolean[numPipes];
+	    for(int i = 0; i < msgStatus.length; i++)
+	    {
+		msgStatus[i] = false; // No message pieces have been sent as far as the sender knows at this point
+	    }
+	    
+	    boolean transmissionComplete = false;
+	
+	    while(!transmissionComplete)
+	    {
+		int sequenceNumber;
+		try
+		{
+		    sequenceNumber = notificationQueue.take().intValue();
+		}
+		catch(InterruptedException e)
+		{
+		    ChannelUtils.output("In Sender.sendMessage(): InterruptedException occurred while attempting to retrieve a sequence number from the notification queue");
+		    continue;
+		}
+		
+		// TODO: Remove
+		System.out.println("Message block " + sequenceNumber + " sent");
+		
+		msgStatus[sequenceNumber] = true;
+		
+		transmissionComplete = true;	    
+		for(int i = 0; i < msgStatus.length; i++)
+		{
+		    if(!msgStatus[i])
+		    {
+			// There is at least one part of the message which has not finished sending, so
+			// the transmission is not complete.
+			transmissionComplete = false;
+		    }
+		}
+	    }
+
+	    endTime = System.nanoTime();
 	}
+	
+	long totalNanos = endTime - startTime;
+	long totalMillis = totalNanos / 1000;
+
+	// TODO: Implement arbitrary length decimal (BigDecimal) calculation here
+	double transRate = (numBytes / totalMillis) / 1000; // Transmission rate in bytes per second
+	
+	//
+	// Transmission report
+	//
+	ChannelUtils.output("\n--------------------------------------------------------------------------------");
+	ChannelUtils.output("Message transmission complete.\n");
+	ChannelUtils.output("Sent " + numBytes + " bytes in " + totalNanos + " nanoseconds (" + totalMillis + ") milliseconds\n");
+	ChannelUtils.output("Transmission rate: " + transRate + " bytes per second\n");
+	ChannelUtils.output("\n--------------------------------------------------------------------------------");
     }
 
     private class MessageSenderThread extends Thread
     {
 	private Channel messageChannel;
 	private String msg;
+	private LinkedBlockingQueue<Integer> notificationQueue;
+	private int sequenceNumber;
 
-	public MessageSenderThread(Channel messageChannel, String msg)
+	public MessageSenderThread(Channel messageChannel, String msg, LinkedBlockingQueue<Integer> notificationQueue, int sequenceNumber)
 	{
 	    this.messageChannel = messageChannel;
 	    this.msg = msg;
+	    this.notificationQueue = notificationQueue;
+	    this.sequenceNumber = sequenceNumber;
 	}
 	
 	@Override
@@ -96,17 +168,23 @@ public class Sender
 		System.out.println("Message \"" + msg + "\" sent! Closing the channel");
 
 		messageChannel.closeChannel(); // Tells the receiver that the transmission is complete 
+
+		// Acknowledges that this part of the message has been sent
+		notificationQueue.put(sequenceNumber);
 	    }
 	    catch(IOException e)
 	    {
 		ChannelUtils.output("In MessageSenderThread.run(): IOException occurred while attempting to use channel");
-		return;
 	    }
 	    catch(InterruptedException e)
 	    {
-		ChannelUtils.output("In Sender.run(): InterruptedException occurred while attempting to open channel");
-		return;
+		ChannelUtils.output("In Sender.run(): InterruptedException occurred while attempting to send message");
 	    }
+	}
+
+	public int getSequenceNumber()
+	{
+	    return sequenceNumber;
 	}
     }
 
@@ -119,23 +197,6 @@ public class Sender
 	    usage(); // Print usage message and exit    
 	}
 
-	String msg = null;
-
-	try
-	{
-	    msg = readFile(args[0]);
-	}
-	catch(IOException e)
-	{
-	    ChannelUtils.output("In Sender.main(): IOException occurred while attemptin to read input file \"" + args[0] + "\"");
-	}
-
-	if(msg.length() <= 0)
-	{
-	    ChannelUtils.output("Message cannot be empty");
-	    System.exit(0);
-	}
-
 	int numPipes = Integer.valueOf(args[1]);
 		
 	if(!ChannelUtils.isValidNumberOfPipes(numPipes))
@@ -144,16 +205,20 @@ public class Sender
 	    System.exit(0);
 	}
 
-	List<Channel> pipes = null;
+	int numBytes;
+	long sleepInterval;
 
-	long[] optArgs;
-	if(args.length > MIN_CMD_ARGS)
-	{
-	    optArgs = parseOptionalArguments(args);
-	}
+	// TODO: Uncomment or remove
+	//if(args.length > MIN_CMD_ARGS)
+	//{
+	int[] optArgs = parseOptionalArguments(args);
+	numBytes = optArgs[NUM_BYTES_INDEX];
+	sleepInterval = (long) optArgs[WAIT_INTERVAL_INDEX];
+	//}
 
+	/* TODO: Uncomment or remove
 	try
-	{
+	{	    
 	    if(args.length == 3)
 	    {
 		long sleepInterval = Long.valueOf(args[2]);
@@ -168,6 +233,53 @@ public class Sender
 	{
 	    ChannelUtils.output("In Sender.main(): IOException occurred while retrieving channel pipes");
 	}
+	*/
+
+	List<Channel> pipes = null;
+	try
+	{	    
+	    if(sleepInterval > 0)
+	    {		
+		pipes = ChannelUtils.getPipes(sleepInterval, Channel.CHANNEL_MODE.SENDER);
+	    }
+	    else
+	    {
+		pipes = ChannelUtils.getPipes(Channel.CHANNEL_MODE.SENDER);
+	    }
+	}
+	catch(IOException e)
+	{
+	    ChannelUtils.output("In Sender.main(): IOException occurred while retrieving channel pipes");
+	}
+
+
+	String msg = null;
+
+	try
+	{
+	    if(numBytes > 0)
+	    {		
+		msg = readFile(args[0], numBytes);
+	    }
+	    else
+	    {
+		msg = readFile(args[0]);
+	    }
+	}
+	catch(FileNotFoundException e)
+	{
+	    ChannelUtils.output("In Sender.main(): FileNotFoundException occurred while attemptin to read input file \"" + args[0] + "\"");
+	}
+	catch(IOException e)
+	{
+	    ChannelUtils.output("In Sender.main(): IOException occurred while attemptin to read input file \"" + args[0] + "\"");
+	}
+
+	if(msg.length() <= 0)
+	{
+	    ChannelUtils.output("Message cannot be empty");
+	    System.exit(0);
+	}
 
 	Sender messageSender = new Sender(pipes);
 	messageSender.sendMessage(msg, numPipes);
@@ -179,23 +291,53 @@ public class Sender
 	System.exit(0);
     }
 
-    private static long[] parseOptionalArguments(String[] args)
+    /**
+     * Parses out the optional command line arguments (if there are any) and returns them
+     * in an array of integers. Any values not provided will default to -1.
+     * 
+     * index 0: Number of bytes to send
+     * index 1: wait/sleep interval (how long to wait between rechecking a file)
+     */
+    private static int[] parseOptionalArguments(String[] args)
     {
 	// 0: number of bytes to send
 	// 1: wait/sleep interval
-	long[] optArgs = new long[2]; 
+	int[] optArgs = {-1, -1};
 	
 	for(int i = MIN_CMD_ARGS; i < args.length; i += 2)
 	{
 	    if(args[i].equals(NUM_BYTES_ARG_FLAG))
 	    {
+		int numBytes = Integer.valueOf(args[i + 1]);
 
+		if(numBytes <= 0)
+		{
+		    System.out.println("Error: num_bytes must be greater than zero");
+		    System.exit(0);
+		}
+
+		optArgs[NUM_BYTES_INDEX] = numBytes;
 	    }
-	    else if(args[i].equals(WAIT_INTERVAL_ARG_FLAG)
+	    else if(args[i].equals(WAIT_INTERVAL_ARG_FLAG))
 	    {
+		int waitInterval = Integer.valueOf(args[i + 1]);
 
+		if(waitInterval <= 0)
+		{
+		    System.out.println("Error: wait_interval must be greater than zero");
+		    System.exit(0);
+		}
+
+		optArgs[WAIT_INTERVAL_INDEX] = Integer.valueOf(args[i + 1]);
+	    }
+	    else
+	    {
+		System.out.println("Error: invalid command line argument flag \'" + args[i] + "\'");
+		System.exit(0);
 	    }
 	}
+
+	return optArgs;
     }
 
     /**
@@ -210,7 +352,23 @@ public class Sender
 	byte[] encoded = Files.readAllBytes(Paths.get(path));
 	return new String(encoded);
     }
-    
+
+    /**
+     * Function for reading the specified number of bytes from the given file.
+     */
+    private static String readFile(String path, int numBytes)
+	throws FileNotFoundException, IOException
+    {	
+	byte[] msgBytes = new byte[numBytes];
+	FileInputStream msgStream = new FileInputStream(path);
+
+	// TODO: Handle the cases where the number of bytes read is less than the size of the buffer
+	// and/or the end of the input file is reached (will return -1 in that case)
+	int bytesRead = msgStream.read(msgBytes);
+
+	return new String(msgBytes);
+    }
+
     /**
      * Splits the given message string into {@param numBlocks} 
      * individual strings. Assumes that the message is at least

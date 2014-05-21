@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.math.BigDecimal;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.List;
 
@@ -36,7 +37,7 @@ public class Sender
 	notificationQueue = new LinkedBlockingQueue<Integer>();
     }
 
-    public void sendMessage(String msg, int numPipes)
+    public void sendMessage(String msg, int numPipes, long sleepInterval)
 	throws IllegalArgumentException
     {
 	// Used for profiling how long it takes to send the message
@@ -82,7 +83,6 @@ public class Sender
 		sender.start();
 	    }
 
-	    // #TODO: pull responses off the message queue until all message pieces have been confirmed as being sent
 	    boolean[] msgStatus = new boolean[numPipes];
 	    for(int i = 0; i < msgStatus.length; i++)
 	    {
@@ -105,7 +105,7 @@ public class Sender
 		}
 		
 		// TODO: Remove
-		System.out.println("Message block " + sequenceNumber + " sent");
+		//System.out.println("Message block " + sequenceNumber + " sent");
 		
 		msgStatus[sequenceNumber] = true;
 		
@@ -125,18 +125,24 @@ public class Sender
 	}
 	
 	long totalNanos = endTime - startTime;
-	long totalMillis = totalNanos / 1000;
+	long totalMillis = totalNanos / 1000000;
 
-	// TODO: Implement arbitrary length decimal (BigDecimal) calculation here
-	double transRate = (numBytes / totalMillis) / 1000; // Transmission rate in bytes per second
+	BigDecimal bigNumBytes = new BigDecimal(numBytes);
+	BigDecimal bigTotalNanos = new BigDecimal(totalNanos);
+	BigDecimal bigTotalSeconds = bigTotalNanos.divide(new BigDecimal(1000000000), BigDecimal.ROUND_HALF_UP);
+
+	// Transmission rate in bytes per second
+	BigDecimal transRate = bigNumBytes.divide(bigTotalSeconds, BigDecimal.ROUND_HALF_UP);
 	
 	//
 	// Transmission report
 	//
 	ChannelUtils.output("\n--------------------------------------------------------------------------------");
 	ChannelUtils.output("Message transmission complete.\n");
+	ChannelUtils.output("Number of pipes used: " + numPipes);
+	ChannelUtils.output("Wait interval: " + sleepInterval + " milliseconds");
 	ChannelUtils.output("Sent " + numBytes + " bytes in " + totalNanos + " nanoseconds (" + totalMillis + ") milliseconds\n");
-	ChannelUtils.output("Transmission rate: " + transRate + " bytes per second\n");
+	ChannelUtils.output("Transmission rate: " + transRate.toPlainString() + " bytes per second\n");
 	ChannelUtils.output("\n--------------------------------------------------------------------------------");
     }
 
@@ -165,7 +171,7 @@ public class Sender
 		messageChannel.sendMessage(msg);
 
 		// TODO: Remove
-		System.out.println("Message \"" + msg + "\" sent! Closing the channel");
+		//System.out.println("Message \"" + msg + "\" sent! Closing the channel");
 
 		messageChannel.closeChannel(); // Tells the receiver that the transmission is complete 
 
@@ -208,36 +214,19 @@ public class Sender
 	int numBytes;
 	long sleepInterval;
 
-	// TODO: Uncomment or remove
-	//if(args.length > MIN_CMD_ARGS)
-	//{
 	int[] optArgs = parseOptionalArguments(args);
 	numBytes = optArgs[NUM_BYTES_INDEX];
 	sleepInterval = (long) optArgs[WAIT_INTERVAL_INDEX];
-	//}
-
-	/* TODO: Uncomment or remove
-	try
-	{	    
-	    if(args.length == 3)
-	    {
-		long sleepInterval = Long.valueOf(args[2]);
-		pipes = ChannelUtils.getPipes(sleepInterval, Channel.CHANNEL_MODE.SENDER);
-	    }
-	    else
-	    {
-		pipes = ChannelUtils.getPipes(Channel.CHANNEL_MODE.SENDER);
-	    }
-	}
-	catch(IOException e)
+	
+	if(sleepInterval <= 0)
 	{
-	    ChannelUtils.output("In Sender.main(): IOException occurred while retrieving channel pipes");
+	    sleepInterval = ChannelUtils.DEFAULT_SLEEP_INTERVAL;
 	}
-	*/
 
 	List<Channel> pipes = null;
 	try
-	{	    
+	{
+	    /* TODO: Uncomment or remove
 	    if(sleepInterval > 0)
 	    {		
 		pipes = ChannelUtils.getPipes(sleepInterval, Channel.CHANNEL_MODE.SENDER);
@@ -246,12 +235,14 @@ public class Sender
 	    {
 		pipes = ChannelUtils.getPipes(Channel.CHANNEL_MODE.SENDER);
 	    }
+	    */
+
+	    pipes = ChannelUtils.getPipes(sleepInterval, Channel.CHANNEL_MODE.SENDER);
 	}
 	catch(IOException e)
 	{
 	    ChannelUtils.output("In Sender.main(): IOException occurred while retrieving channel pipes");
 	}
-
 
 	String msg = null;
 
@@ -282,7 +273,7 @@ public class Sender
 	}
 
 	Sender messageSender = new Sender(pipes);
-	messageSender.sendMessage(msg, numPipes);
+	messageSender.sendMessage(msg, numPipes, sleepInterval);
     }
 
     private static void usage()

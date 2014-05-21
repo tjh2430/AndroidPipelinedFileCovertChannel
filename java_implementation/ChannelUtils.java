@@ -21,7 +21,7 @@ public class ChannelUtils
     public static final String PRIMARY_DATA_FILE = "control_d.txt";
     public static final String PRIMARY_READ_READY_FILE = "control_rr.txt";
     public static final String PRIMARY_WRITE_READY_FILE = "control_wr.txt";
-    public static final long DEFAULT_SLEEP_INTERVAL = (long) 5;
+    public static final long DEFAULT_SLEEP_INTERVAL = (long) 1;
 
     //private static final String DEFAULT_TAG = "com.example.filecovertchannellib";
 

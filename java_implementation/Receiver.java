@@ -82,31 +82,35 @@ public class Receiver extends Thread
 	@Override
 	public void run()	    
 	{
-	    try
-	    {
-		messageChannel.waitForChannelToOpen();
-	    }
-	    catch(InterruptedException e)
-	    {
-		ChannelUtils.output("InterruptedException in MessageReceiverThread.run(): unable to open message channel; thread exiting");
-		return;
-	    }
-	    catch(IOException e)
-	    {
-		ChannelUtils.output("IOException in MessageReceiverThread.run(): unable to open message channel; thread exiting");
-		return;
-	    }
-
-	    String msgString = messageChannel.receiveMessage();
-
-	    try
-	    {
-		messageQueue.put(new MessageBlock(sequenceNumber, msgString));
-	    }
-	    catch(InterruptedException e)
-	    {
-		ChannelUtils.output("InterruptedException in MessageReceiverThread.run(): Received message block \"" + msgString + "\" but could not add it to the message queue");
-	    }	    
+	    // TODO: Uncomment or remove
+	    //while(true)
+	    //{
+		try
+		{
+		    messageChannel.waitForChannelToOpen();
+		}
+		catch(InterruptedException e)
+		{
+		    ChannelUtils.output("InterruptedException in MessageReceiverThread.run(): unable to open message channel; thread exiting");
+		    return;
+		}
+		catch(IOException e)
+		{
+		    ChannelUtils.output("IOException in MessageReceiverThread.run(): unable to open message channel; thread exiting");
+		    return;
+		}
+		
+		String msgString = messageChannel.receiveMessage();
+		
+		try
+		{
+		    messageQueue.put(new MessageBlock(sequenceNumber, msgString));
+		}
+		catch(InterruptedException e)
+		{
+		    ChannelUtils.output("InterruptedException in MessageReceiverThread.run(): Received message block \"" + msgString + "\" but could not add it to the message queue");
+		}	    
+		//}
 	}
     }
 

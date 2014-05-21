@@ -1,0 +1,120 @@
+
+--------------------------------------------------------------------------------
+Message transmission complete.
+
+Number of pipes used: 4
+Wait interval: 1 milliseconds
+Sent 100 bytes in 47483453505 nanoseconds (47483) milliseconds
+
+Transmission rate: 2 bytes per second
+
+
+--------------------------------------------------------------------------------
+
+--------------------------------------------------------------------------------
+Message transmission complete.
+
+Number of pipes used: 4
+Wait interval: 2 milliseconds
+Sent 100 bytes in 7309340838 nanoseconds (7309) milliseconds
+
+Transmission rate: 14 bytes per second
+
+
+--------------------------------------------------------------------------------
+
+--------------------------------------------------------------------------------
+Message transmission complete.
+
+Number of pipes used: 4
+Wait interval: 3 milliseconds
+Sent 100 bytes in 12300062243 nanoseconds (12300) milliseconds
+
+Transmission rate: 8 bytes per second
+
+
+--------------------------------------------------------------------------------
+
+--------------------------------------------------------------------------------
+Message transmission complete.
+
+Number of pipes used: 4
+Wait interval: 4 milliseconds
+Sent 100 bytes in 11822929703 nanoseconds (11822) milliseconds
+
+Transmission rate: 8 bytes per second
+
+
+--------------------------------------------------------------------------------
+
+--------------------------------------------------------------------------------
+Message transmission complete.
+
+Number of pipes used: 4
+Wait interval: 5 milliseconds
+Sent 100 bytes in 6530644600 nanoseconds (6530) milliseconds
+
+Transmission rate: 14 bytes per second
+
+
+--------------------------------------------------------------------------------
+
+--------------------------------------------------------------------------------
+Message transmission complete.
+
+Number of pipes used: 4
+Wait interval: 6 milliseconds
+Sent 100 bytes in 5105977265 nanoseconds (5105) milliseconds
+
+Transmission rate: 20 bytes per second
+
+
+--------------------------------------------------------------------------------
+
+--------------------------------------------------------------------------------
+Message transmission complete.
+
+Number of pipes used: 4
+Wait interval: 7 milliseconds
+Sent 100 bytes in 7354098937 nanoseconds (7354) milliseconds
+
+Transmission rate: 14 bytes per second
+
+
+--------------------------------------------------------------------------------
+
+--------------------------------------------------------------------------------
+Message transmission complete.
+
+Number of pipes used: 4
+Wait interval: 8 milliseconds
+Sent 100 bytes in 6250904827 nanoseconds (6250) milliseconds
+
+Transmission rate: 17 bytes per second
+
+
+--------------------------------------------------------------------------------
+
+--------------------------------------------------------------------------------
+Message transmission complete.
+
+Number of pipes used: 4
+Wait interval: 9 milliseconds
+Sent 100 bytes in 6074973150 nanoseconds (6074) milliseconds
+
+Transmission rate: 17 bytes per second
+
+
+--------------------------------------------------------------------------------
+
+--------------------------------------------------------------------------------
+Message transmission complete.
+
+Number of pipes used: 4
+Wait interval: 10 milliseconds
+Sent 100 bytes in 4893275328 nanoseconds (4893) milliseconds
+
+Transmission rate: 20 bytes per second
+
+
+--------------------------------------------------------------------------------

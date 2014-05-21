@@ -1,0 +1,120 @@
+
+--------------------------------------------------------------------------------
+Message transmission complete.
+
+Number of pipes used: 2
+Wait interval: 1 milliseconds
+Sent 13 bytes in 6628752959 nanoseconds (6628) milliseconds
+
+Transmission rate: 2 bytes per second
+
+
+--------------------------------------------------------------------------------
+
+--------------------------------------------------------------------------------
+Message transmission complete.
+
+Number of pipes used: 2
+Wait interval: 2 milliseconds
+Sent 13 bytes in 8454672895 nanoseconds (8454) milliseconds
+
+Transmission rate: 2 bytes per second
+
+
+--------------------------------------------------------------------------------
+
+--------------------------------------------------------------------------------
+Message transmission complete.
+
+Number of pipes used: 2
+Wait interval: 3 milliseconds
+Sent 13 bytes in 4969702239 nanoseconds (4969) milliseconds
+
+Transmission rate: 3 bytes per second
+
+
+--------------------------------------------------------------------------------
+
+--------------------------------------------------------------------------------
+Message transmission complete.
+
+Number of pipes used: 2
+Wait interval: 4 milliseconds
+Sent 13 bytes in 3268256990 nanoseconds (3268) milliseconds
+
+Transmission rate: 4 bytes per second
+
+
+--------------------------------------------------------------------------------
+
+--------------------------------------------------------------------------------
+Message transmission complete.
+
+Number of pipes used: 2
+Wait interval: 5 milliseconds
+Sent 13 bytes in 3383045570 nanoseconds (3383) milliseconds
+
+Transmission rate: 4 bytes per second
+
+
+--------------------------------------------------------------------------------
+
+--------------------------------------------------------------------------------
+Message transmission complete.
+
+Number of pipes used: 2
+Wait interval: 6 milliseconds
+Sent 13 bytes in 3293445457 nanoseconds (3293) milliseconds
+
+Transmission rate: 4 bytes per second
+
+
+--------------------------------------------------------------------------------
+
+--------------------------------------------------------------------------------
+Message transmission complete.
+
+Number of pipes used: 2
+Wait interval: 7 milliseconds
+Sent 13 bytes in 5110784699 nanoseconds (5110) milliseconds
+
+Transmission rate: 3 bytes per second
+
+
+--------------------------------------------------------------------------------
+
+--------------------------------------------------------------------------------
+Message transmission complete.
+
+Number of pipes used: 2
+Wait interval: 8 milliseconds
+Sent 13 bytes in 5701477246 nanoseconds (5701) milliseconds
+
+Transmission rate: 2 bytes per second
+
+
+--------------------------------------------------------------------------------
+
+--------------------------------------------------------------------------------
+Message transmission complete.
+
+Number of pipes used: 2
+Wait interval: 9 milliseconds
+Sent 13 bytes in 5861750805 nanoseconds (5861) milliseconds
+
+Transmission rate: 2 bytes per second
+
+
+--------------------------------------------------------------------------------
+
+--------------------------------------------------------------------------------
+Message transmission complete.
+
+Number of pipes used: 2
+Wait interval: 10 milliseconds
+Sent 13 bytes in 4850185312 nanoseconds (4850) milliseconds
+
+Transmission rate: 3 bytes per second
+
+
+--------------------------------------------------------------------------------

@@ -1,0 +1,78 @@
+REM Test Case $: Shakespeare (& bytes)
+REM Pipes: 1, 2, 3, 4, 5, 10 ,16
+java Sender complete_works_of_shakespeare.txt 1 -b & -w 1
+java Sender complete_works_of_shakespeare.txt 1 -b & -w 2
+java Sender complete_works_of_shakespeare.txt 1 -b & -w 3
+java Sender complete_works_of_shakespeare.txt 1 -b & -w 4
+java Sender complete_works_of_shakespeare.txt 1 -b & -w 5
+java Sender complete_works_of_shakespeare.txt 1 -b & -w 6
+java Sender complete_works_of_shakespeare.txt 1 -b & -w 7
+java Sender complete_works_of_shakespeare.txt 1 -b & -w 8
+java Sender complete_works_of_shakespeare.txt 1 -b & -w 9
+java Sender complete_works_of_shakespeare.txt 1 -b & -w 10
+
+java Sender complete_works_of_shakespeare.txt 2 -b & -w 1
+java Sender complete_works_of_shakespeare.txt 2 -b & -w 2
+java Sender complete_works_of_shakespeare.txt 2 -b & -w 3
+java Sender complete_works_of_shakespeare.txt 2 -b & -w 4
+java Sender complete_works_of_shakespeare.txt 2 -b & -w 5
+java Sender complete_works_of_shakespeare.txt 2 -b & -w 6
+java Sender complete_works_of_shakespeare.txt 2 -b & -w 7
+java Sender complete_works_of_shakespeare.txt 2 -b & -w 8
+java Sender complete_works_of_shakespeare.txt 2 -b & -w 9
+java Sender complete_works_of_shakespeare.txt 2 -b & -w 10
+
+java Sender complete_works_of_shakespeare.txt 3 -b & -w 1
+java Sender complete_works_of_shakespeare.txt 3 -b & -w 2
+java Sender complete_works_of_shakespeare.txt 3 -b & -w 3
+java Sender complete_works_of_shakespeare.txt 3 -b & -w 4
+java Sender complete_works_of_shakespeare.txt 3 -b & -w 5
+java Sender complete_works_of_shakespeare.txt 3 -b & -w 6
+java Sender complete_works_of_shakespeare.txt 3 -b & -w 7
+java Sender complete_works_of_shakespeare.txt 3 -b & -w 8
+java Sender complete_works_of_shakespeare.txt 3 -b & -w 9
+java Sender complete_works_of_shakespeare.txt 3 -b & -w 10
+
+java Sender complete_works_of_shakespeare.txt 4 -b & -w 1
+java Sender complete_works_of_shakespeare.txt 4 -b & -w 2
+java Sender complete_works_of_shakespeare.txt 4 -b & -w 3
+java Sender complete_works_of_shakespeare.txt 4 -b & -w 4
+java Sender complete_works_of_shakespeare.txt 4 -b & -w 5
+java Sender complete_works_of_shakespeare.txt 4 -b & -w 6
+java Sender complete_works_of_shakespeare.txt 4 -b & -w 7
+java Sender complete_works_of_shakespeare.txt 4 -b & -w 8
+java Sender complete_works_of_shakespeare.txt 4 -b & -w 9
+java Sender complete_works_of_shakespeare.txt 4 -b & -w 10
+
+java Sender complete_works_of_shakespeare.txt 5 -b & -w 1
+java Sender complete_works_of_shakespeare.txt 5 -b & -w 2
+java Sender complete_works_of_shakespeare.txt 5 -b & -w 3
+java Sender complete_works_of_shakespeare.txt 5 -b & -w 4
+java Sender complete_works_of_shakespeare.txt 5 -b & -w 5
+java Sender complete_works_of_shakespeare.txt 5 -b & -w 6
+java Sender complete_works_of_shakespeare.txt 5 -b & -w 7
+java Sender complete_works_of_shakespeare.txt 5 -b & -w 8
+java Sender complete_works_of_shakespeare.txt 5 -b & -w 9
+java Sender complete_works_of_shakespeare.txt 5 -b & -w 10
+
+java Sender complete_works_of_shakespeare.txt 10 -b & -w 1
+java Sender complete_works_of_shakespeare.txt 10 -b & -w 2
+java Sender complete_works_of_shakespeare.txt 10 -b & -w 3
+java Sender complete_works_of_shakespeare.txt 10 -b & -w 4
+java Sender complete_works_of_shakespeare.txt 10 -b & -w 5
+java Sender complete_works_of_shakespeare.txt 10 -b & -w 6
+java Sender complete_works_of_shakespeare.txt 10 -b & -w 7
+java Sender complete_works_of_shakespeare.txt 10 -b & -w 8
+java Sender complete_works_of_shakespeare.txt 10 -b & -w 9
+java Sender complete_works_of_shakespeare.txt 10 -b & -w 10
+
+java Sender complete_works_of_shakespeare.txt 16 -b & -w 1
+java Sender complete_works_of_shakespeare.txt 16 -b & -w 2
+java Sender complete_works_of_shakespeare.txt 16 -b & -w 3
+java Sender complete_works_of_shakespeare.txt 16 -b & -w 4
+java Sender complete_works_of_shakespeare.txt 16 -b & -w 5
+java Sender complete_works_of_shakespeare.txt 16 -b & -w 6
+java Sender complete_works_of_shakespeare.txt 16 -b & -w 7
+java Sender complete_works_of_shakespeare.txt 16 -b & -w 8
+java Sender complete_works_of_shakespeare.txt 16 -b & -w 9
+java Sender complete_works_of_shakespeare.txt 16 -b & -w 10
